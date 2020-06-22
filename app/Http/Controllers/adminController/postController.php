@@ -60,8 +60,9 @@ class postController extends Controller {
 
     }
 
-    public function post_get(Request $data) {
-        $posts = post::all();      
+    public function post_get() {
+        $posts = post::all();   
+        //return $posts;
         return view('admin-view.posts', ['posts' => $posts]);        
     }
 
@@ -156,5 +157,23 @@ class postController extends Controller {
             Session::put('flash_message', trans('messages.9'));
             return redirect()->back();
         }
+    }
+    
+    public function view_post(){
+         $posts = post::all();
+        return view('front-view.posts', ['posts' => $posts]);
+    }
+    public function post_details($data){
+        //echo date("Y-m-d");
+        $val = explode("||", base64_decode($data));
+        $id = $val[0];
+        $post_details = post::findOrFail($id);
+        return view('front-view.post_details', ['post' => $post_details]);
+    }
+    public function play_video($data){
+        $val = explode("||", base64_decode($data));
+        $id = $val[0];
+        $post_details = post::findOrFail($id);
+        return view('front-view.play_video', ['post' => $post_details]);
     }
 }

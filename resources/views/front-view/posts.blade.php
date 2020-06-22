@@ -39,13 +39,13 @@
 <div class="row">
     <div class="col-xs-12">
         <div class="box">
-            <div class="box-header">               
+            <div class="box-header">
+               
                 <div class="box-tools">
-                    <div class="input-group" style="width: 150px;">
-                        
-                        <div class="input-group-btn">
+                    <div class="input-group" style="width: 150px;">                        
+<!--                        <div class="input-group-btn">
                             <a  href="{{url('add-post')}}" class="btn btn-mini btn-primary pull-right button_class">{{trans('labels.17')}}</a>
-                        </div>
+                        </div>-->
                     </div>
                 </div>
             </div><!-- /.box-header -->
@@ -54,39 +54,28 @@
             <div class="box-body table-responsive no-padding">
 
                 <table class="table table-hover">
-                    <tr>
-                        <th>ID</th>
-                        <th>Titel</th>
-                         <th>Publish Date</th>
-                        <th>Expired Date</th>
+                    <tr>                       
                         <th>Poster Image</th>
-                        <th>{{trans('labels.20')}}</th>
                     </tr>
                     @foreach($posts as $cat) 
-                    <tr>
-                        <td>{{$cat->id}}</td>
-                        <td>{{$cat->title}}</td>
-                        <td>{{$cat->publish_date}}</td>                                            
-                        <td>{{$cat->expired_date}}</td>
+                    <tr>                       
                         <td>
+                            <div class="row margin-bottom">
+                                <a href="{{ url('post-details-'.base64_encode($cat->id.'||'.env('APP_KEY')))}}"  class="btn btn-mini mergin_one" > 
                             @if(!empty($cat->poster_image))
-                            <img src="{{asset('public/assets/images/'.$cat->poster_image)}}" alt="Smiley face" height="42" width="42">
+                            <img src="{{asset('public/assets/images/'.$cat->poster_image)}}" alt="Photo" class="img-responsive" height="100" width="100">
                             @else 
-                            <img src="{{asset('public/assets/images/01.png')}}" alt="" height="42" width="42">
+                            <img src="{{asset('public/assets/images/01.png')}}" alt="Photo" class="img-responsive" height="100" width="100">
                             @endif
-
+                                </a>
+                            </div>
+                            <div>
+                                <a href="{{ url('post-details-'.base64_encode($cat->id.'||'.env('APP_KEY')))}}"  class="btn btn-mini mergin_one" >                               
+                                {{$cat->title}}
+                                </a>
+                            </div>
                         </td>
-                        <td>
-                            &nbsp;&nbsp;
-                            <a href="{{ url('admin-post-edit-'.base64_encode($cat->id.'||'.env('APP_KEY')))}}"   class="btn btn-mini mergin_one" >
-                                <i class="icon-edit"></i> {{trans('labels.14')}}
-                            </a>
-                            &nbsp;&nbsp;
-                            <a onclick="return confirm('{{trans('labels.21')}}');" href="{{ url('admin-post-delete-'.base64_encode($cat->id.'||'.env('APP_KEY')))}}"  class="btn btn-mini" style="margin:1px">
-                                <i class="icon-trash"></i> {{trans('labels.15')}}
-                            </a>
-                            &nbsp;&nbsp;                            
-                        </td>
+                       
                     </tr>
                     @endforeach
                 </table>
@@ -101,4 +90,5 @@
         </div><!-- /.box -->
     </div>
 </div>
+
 @endsection

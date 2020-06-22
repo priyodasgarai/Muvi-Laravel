@@ -18,7 +18,9 @@ Route::get('admin-post-delete-{id}', 'adminController\postController@post_delete
 
 
 
-Route::get('/', 'adminController\postController@post_get'); 
+Route::get('/', 'adminController\postController@view_post'); 
+Route::get('/post-details-{id}', 'adminController\postController@post_details'); 
+Route::get('/play-video-{id}', 'adminController\postController@play_video'); 
 
 /*
 Route::get('/react', function () {

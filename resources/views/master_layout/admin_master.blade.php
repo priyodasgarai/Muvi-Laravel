@@ -38,9 +38,9 @@
                 <!-- Logo -->
                 <a href="{{url('admin-post')}}" class="logo">
                     <!-- mini logo for sidebar mini 50x50 pixels -->
-                    <span class="logo-mini"><b>A</b>LT</span>
+                    <span class="logo-mini"><b>P</b>D</span>
                     <!-- logo for regular state and mobile devices -->
-                    <span class="logo-lg"><b>Admin</b>LTE</span>
+                    <span class="logo-lg"><b>Muvi</b>Admin</span>
                 </a>
                 <!-- Header Navbar: style can be found in header.less -->
                 <nav class="navbar navbar-static-top">
@@ -83,7 +83,7 @@
                 <div class="pull-right hidden-xs">
                     <b>Version</b> 2.4.0
                 </div>
-                <strong>Copyright &copy; 2014-2016 <a href="#">Almsaeed Studio</a>.</strong> All rights
+                <strong>Copyright &copy; 2020-2021 <a href="#">PriyoDas</a>.</strong> All rights
                 reserved.
             </footer>
 
@@ -107,11 +107,13 @@
         <!-- AdminLTE App -->
         <script src="{{asset('public/admin-asset/js/adminlte.min.js')}}"></script>
         <!-- AdminLTE for demo purposes -->
-        <script src="../../dist/js/demo.js"></script>
+        <script src="{{asset('public/admin-asset/js/demo.js')}}"></script>
+        
         <script>
 $(document).ready(function () {
     $('.sidebar-menu').tree()
 })
         </script>
+         @yield('custom_js')
     </body>
 </html>
