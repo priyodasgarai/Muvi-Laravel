@@ -19,6 +19,7 @@ class CreatePostsTable extends Migration
             $table->date('publish_date');
             $table->date('expired_date');
             $table->string('video');
+            $table->smallInteger('count_video');
             $table->string('poster_image');
             $table->longText('content');
             $table->timestamps();

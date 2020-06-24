@@ -24,3 +24,5 @@ Route::post('register','API\PassportController@register');
 Route::group(['middlewsre' => 'auth:api'], function(){
 	Route::post('get-details','API\PassportController@getDetails');
 });
+Route::get('/clear-cache', function(){Artisan::call('cache:clear');});
+Route::put('update_count/{id}', 'adminController\postController@update_video_count'); 

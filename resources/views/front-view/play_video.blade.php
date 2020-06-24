@@ -7,11 +7,27 @@
 
 @section('custom_js')
 <script>
+    function video_count(){
+    var id = {{$post->id}};
+    $.ajax({
+      type: "PUT",
+      url: 'api/update_count/'+ id,
+      data: {count_video: 0},
+      success:function (data, status) {
+    if (data.result == true) {
+        window.location = "{{ url('/')}}";   
+    } else{
+        alert(data.message);
+         window.location = "{{ url('/')}}";
+    }
+    }
+    }) 
+    };
     // Get the video element with id="myVideo"
 var vid = document.getElementById("myVideo"); 
 vid.addEventListener('ended',function(){
     alert("Expired Time Reached");
-    window.location = "{{ url('/')}}";
+   video_count();
     });
 //    vid.addEventListener('videoTracks',function(){
 //    alert(vid.videoTracks.length);

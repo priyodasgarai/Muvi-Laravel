@@ -19,6 +19,7 @@
         <!-- AdminLTE Skins. Choose a skin from the css/skins
              folder instead of downloading all of them to reduce the load. -->
         <link rel="stylesheet" href="{{asset('public/admin-asset/css/_all-skins.min.css')}}">
+         <link rel="stylesheet" href="{{asset('public/admin-asset/css/sweetalert.css')}}">
 
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -108,6 +109,7 @@
         <script src="{{asset('public/admin-asset/js/adminlte.min.js')}}"></script>
         <!-- AdminLTE for demo purposes -->
         <script src="{{asset('public/admin-asset/js/demo.js')}}"></script>
+        <script src="{{asset('public/admin-asset/js/sweetalert.min.js')}}"></script>
         
         <script>
 $(document).ready(function () {

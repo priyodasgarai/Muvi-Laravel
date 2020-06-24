@@ -5,6 +5,27 @@
 <title>POST</title>
 @endsection
 
+@section('custom_js')
+<script>
+    function video_count(id){
+    var dec = window.atob(id);
+    var res = dec.split('||');
+    var item_id = res[1];
+    $.ajax({
+      type: "PUT",
+      url: 'api/update_count/'+ item_id,
+      data: {count_video: 1},
+      success:function (data, status) {
+    if (data.result == true) {
+        window.location.href = "{{ url('play-video-'.base64_encode($post->id.'||'.env('APP_KEY')))}}";    
+    } else{
+        alert(data.message);   
+    }
+    }
+    }) 
+    };
+</script>
+@endsection
 
 @section('page_header')
 <section class="content-header">
@@ -42,10 +63,8 @@
             <div class="box-header">
 
                 <div class="box-tools">
-                    <div class="input-group" style="width: 150px;">                        
-                        <!--                        <div class="input-group-btn">
-                                                    <a  href="{{url('add-post')}}" class="btn btn-mini btn-primary pull-right button_class">{{trans('labels.17')}}</a>
-                                                </div>-->
+                    <div class="input-group" style="width: 150px;">                     
+                       
                     </div>
                 </div>
             </div><!-- /.box-header -->
@@ -69,20 +88,17 @@
                     <li class="list-group-item">
                         <b>Expired Date</b> <a class="pull-right">{{$post->expired_date}}</a>
                     </li>
-                </ul>
-
-               
+                </ul>              
                     
                     @if($post->publish_date >= date("Y-m-d"))
                     <b>Display Coming Soon</b>
                     @elseif($post->expired_date <= date("Y-m-d"))
                     <b>Display Expired</b>
                     @elseif($post->publish_date <= date("Y-m-d") && $post->expired_date >= date("Y-m-d"))
-                     <a href="{{ url('play-video-'.base64_encode($post->id.'||'.env('APP_KEY')))}}"  class="btn btn-mini mergin_one" >
+                     <a class="btn btn-mini mergin_one" onclick="video_count('{{base64_encode(env('APP_KEY').'||'.$post->id)}}')">
                     <b>Play</b>
                     </a>
-                    @endif  
-                    
+                    @endif                    
                
 
                 <!-- /.box -->

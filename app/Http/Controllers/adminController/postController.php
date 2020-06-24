@@ -10,134 +10,140 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 
-class postController extends Controller {    
+class postController extends Controller {
+
+    private $result = 0;
+    private $message = 0;
+    private $details = 0;
+    private $validator_error = 0;
 
     public function create(Request $request) {
         if ($request->isMethod('post')) {
-        $video = "";
-        $poster_image = "";
-        $validator = Validator::make($request->all(), [
-                    'title' => 'required',
-                    'publish_date' => 'nullable|date',
-                    'expired_date' => 'nullable|date',
-                    'video' => 'required|mimetypes:video/mp4|max:20000',
-                    'poster_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-                    'content' => 'required',
-        ]);
-        if ($validator->fails()) {
-            return Redirect::back()->withErrors($validator);
-        }        
-        if ($request->hasFile('video')) {
-            $file = $request->file('video');
-            $video = $file->getClientOriginalExtension();
-            $video = time() . rand() . '.' . $video;
-            $destinationPath = public_path() . trans('labels.88');
-            $file->move($destinationPath, $video);
+            $video = "";
+            $poster_image = "";
+            $validator = Validator::make($request->all(), [
+                        'title' => 'required',
+                        'publish_date' => 'nullable|date',
+                        'expired_date' => 'nullable|date',
+                        'video' => 'required|mimetypes:video/mp4|max:20000',
+                        'poster_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                        'content' => 'required',
+            ]);
+            if ($validator->fails()) {
+                return Redirect::back()->withErrors($validator);
+            }
+            if ($request->hasFile('video')) {
+                $file = $request->file('video');
+                $video = $file->getClientOriginalExtension();
+                $video = time() . rand() . '.' . $video;
+                $destinationPath = public_path() . trans('labels.88');
+                $file->move($destinationPath, $video);
+            }
+            if ($request->hasFile('poster_image')) {
+                $file = $request->file('poster_image');
+                $poster_image = $file->getClientOriginalExtension();
+                $poster_image = time() . rand() . '.' . $poster_image;
+                $destinationPath = public_path() . trans('labels.88');
+                $file->move($destinationPath, $poster_image);
+            }
+            $post = new post;
+            $post->title = $request->input('title');
+            $post->publish_date = date('Y-m-d', strtotime($request->input('publish_date')));
+            $post->expired_date = date('Y-m-d', strtotime($request->input('publish_date')));
+            $post->video = $video;
+            $post->count_video = 0;
+            $post->poster_image = $poster_image;
+            $post->content = $request->input('content');
+            if ($post->save()) {
+                Session::put('flash_message', 'Post Add succesfull.');
+                return redirect('admin-post');
+            } else {
+                return Redirect::back()->withErrors(['message' => trans('messages.6')]);
+            }
+        } else {
+            return view('admin-view.addPosts');
         }
-        if ($request->hasFile('poster_image')) {
-            $file = $request->file('poster_image');
-            $poster_image = $file->getClientOriginalExtension();
-            $poster_image = time() . rand() . '.' . $poster_image;
-            $destinationPath = public_path() . trans('labels.88');
-            $file->move($destinationPath, $poster_image);
-        }
-        $post = new post;
-        $post->title = $request->input('title');
-        $post->publish_date = date('Y-m-d', strtotime($request->input('publish_date')));
-        $post->expired_date = date('Y-m-d', strtotime($request->input('publish_date')));
-        $post->video = $video;
-        $post->poster_image = $poster_image;
-        $post->content = $request->input('content');
-        if($post->save()){
-            Session::put('flash_message', 'Post Add succesfull.');
-            return redirect('admin-post');
-        }else{
-            return Redirect::back()->withErrors(['message' => trans('messages.6')]);
-        }
-        }else{
-            return view('admin-view.addPosts');            
-        }
-
     }
 
     public function post_get() {
-        $posts = post::all();   
+        $posts = post::all();
         //return $posts;
-        return view('admin-view.posts', ['posts' => $posts]);        
+        return view('admin-view.posts', ['posts' => $posts]);
     }
 
-    public function post_edit($request){
+    public function post_edit($request) {
         $val = explode("||", base64_decode($request));
         $id = $val[0];
         //dd($id);
         $details = post::findOrFail($id);
-       // return $details;
-        return view('admin-view.editPosts', ['post' => $details]); 
+        // return $details;
+        return view('admin-view.editPosts', ['post' => $details]);
     }
-    public function post_edit_submit(Request $request, $id){
+
+    public function post_edit_submit(Request $request, $id) {
         $validator = Validator::make($request->all(), ['post_id' => 'required']);
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator);
-        } 
+        }
         $post_details = post::findOrFail($request->input('post_id'));
         if (!empty($post_details)) {
-            
-             if ($request->hasFile('poster_image')) {
-                    $validator_img = Validator::make($request->all(), ['poster_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',]);
-                    if ($validator_img->fails()) {
-                        return redirect()->back()->withErrors($validator_img);
-                    } else {
-                        $path = public_path() . trans('labels.88') . $post_details->poster_image;
-                        if (file_exists($path) && !empty($post_details->poster_image)) {
-                            unlink($path);
-                        }
-                        $file = $request->file('poster_image');
-                        $poster_image = $file->getClientOriginalExtension();
-                        $poster_image = time() . rand() . '.' . $poster_image;
-                        $destinationPath = public_path() . trans('labels.88');
-                        $file->move($destinationPath, $poster_image);
+
+            if ($request->hasFile('poster_image')) {
+                $validator_img = Validator::make($request->all(), ['poster_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',]);
+                if ($validator_img->fails()) {
+                    return redirect()->back()->withErrors($validator_img);
+                } else {
+                    $path = public_path() . trans('labels.88') . $post_details->poster_image;
+                    if (file_exists($path) && !empty($post_details->poster_image)) {
+                        unlink($path);
                     }
-                } else {
-                    $poster_image = $post_details->poster_image;
+                    $file = $request->file('poster_image');
+                    $poster_image = $file->getClientOriginalExtension();
+                    $poster_image = time() . rand() . '.' . $poster_image;
+                    $destinationPath = public_path() . trans('labels.88');
+                    $file->move($destinationPath, $poster_image);
                 }
-                if ($request->hasFile('video')) {
-                    $validator_video = Validator::make($request->all(), ['video' => 'required|mimetypes:video/mp4|max:20000',]);
-                    if ($validator_video->fails()) {
-                        return redirect()->back()->withErrors($validator_video);
-                    } else {
-                        $path = public_path() . trans('labels.88') . $post_details->video;
-                        if (file_exists($path) && !empty($post_details->video)) {
-                            unlink($path);
-                        }
-                        $file = $data->file('video');
-                        $video = $file->getClientOriginalExtension();
-                        $video = time() . rand() . '.' . $video;
-                        $destinationPath = public_path() . trans('labels.88');
-                        $file->move($destinationPath, $video);
+            } else {
+                $poster_image = $post_details->poster_image;
+            }
+            if ($request->hasFile('video')) {
+                $validator_video = Validator::make($request->all(), ['video' => 'required|mimetypes:video/mp4|max:20000',]);
+                if ($validator_video->fails()) {
+                    return redirect()->back()->withErrors($validator_video);
+                } else {
+                    $path = public_path() . trans('labels.88') . $post_details->video;
+                    if (file_exists($path) && !empty($post_details->video)) {
+                        unlink($path);
                     }
-                } else {
-                    $video = $post_details->video;
+                    $file = $data->file('video');
+                    $video = $file->getClientOriginalExtension();
+                    $video = time() . rand() . '.' . $video;
+                    $destinationPath = public_path() . trans('labels.88');
+                    $file->move($destinationPath, $video);
                 }
-                $post_details->title = (!empty($request->input('title'))) ? $request->input('title') : $post_details->title;
-                $post_details->publish_date = (!empty($request->input('publish_date'))) ? date('Y-m-d', strtotime($request->input('publish_date'))) : $post_details->publish_date;
-                $post_details->expired_date = (!empty($request->input('expired_date'))) ? date('Y-m-d', strtotime($request->input('expired_date'))) : $post_details->expired_date;
-                $post_details->video = $video;
-                $post_details->poster_image = $poster_image;
-                $post_details->content = (!empty($request->input('content'))) ? $request->input('content') : $post_details->content;
-                if ($post_details->save() == true) {
-                    Session::put('flash_message', trans('messages.10'));
-                    return redirect('admin-post');
-                } else {
-                    Session::put('flash_message', trans('messages.11'));
-                    return redirect('admin-post');
-                }
-                
-                }else{
+            } else {
+                $video = $post_details->video;
+            }
+            $post_details->title = (!empty($request->input('title'))) ? $request->input('title') : $post_details->title;
+            $post_details->publish_date = (!empty($request->input('publish_date'))) ? date('Y-m-d', strtotime($request->input('publish_date'))) : $post_details->publish_date;
+            $post_details->expired_date = (!empty($request->input('expired_date'))) ? date('Y-m-d', strtotime($request->input('expired_date'))) : $post_details->expired_date;
+            $post_details->video = $video;
+            $post_details->poster_image = $poster_image;
+            $post_details->content = (!empty($request->input('content'))) ? $request->input('content') : $post_details->content;
+            if ($post_details->save() == true) {
+                Session::put('flash_message', trans('messages.10'));
+                return redirect('admin-post');
+            } else {
+                Session::put('flash_message', trans('messages.11'));
+                return redirect('admin-post');
+            }
+        } else {
             Session::put('flash_message', trans('messages.7'));
             return redirect('admin-post')->back();
         }
     }
-    public function post_delete($data){
+
+    public function post_delete($data) {
         $val = explode("||", base64_decode($data));
         $id = $val[0];
         $post_details = post::findOrFail($id);
@@ -149,7 +155,7 @@ class postController extends Controller {
         if (file_exists($videopath) && !empty($post_details->video)) {
             unlink($videopath);
         }
-        
+
         if ($post_details->delete() == true) {
             Session::put('flash_message', trans('messages.8'));
             return redirect()->back();
@@ -158,22 +164,74 @@ class postController extends Controller {
             return redirect()->back();
         }
     }
-    
-    public function view_post(){
-         $posts = post::all();
+
+    public function view_post() {
+        $posts = post::all();
         return view('front-view.posts', ['posts' => $posts]);
     }
-    public function post_details($data){
+
+    public function post_details($data) {
         //echo date("Y-m-d");
         $val = explode("||", base64_decode($data));
         $id = $val[0];
         $post_details = post::findOrFail($id);
         return view('front-view.post_details', ['post' => $post_details]);
     }
-    public function play_video($data){
+
+    public function play_video($data) {
         $val = explode("||", base64_decode($data));
         $id = $val[0];
         $post_details = post::findOrFail($id);
         return view('front-view.play_video', ['post' => $post_details]);
     }
+
+    public function update_video_count(Request $request, $id) {
+        // return "hsad";
+        $validator = Validator::make($request->all(), ['count_video' => 'required']);
+        if ($validator->fails()) {
+            $this->result = FALSE;
+            $this->message = trans('messages.13');
+            $this->validator_error = $validator->errors();
+        } else {
+            $this->details = post::find($id);
+            if (!empty($this->details)) {
+
+
+                if ($request->input('count_video') == 1) {
+                    if ($this->details->count_video < 3) {
+                        $this->details->count_video = ($this->details->count_video) + 1;
+                        $this->details->save();
+                        $this->result = true;
+                        $this->message = trans('messages.10');
+                    } else {
+                        $this->result = FALSE;
+                        $this->message = trans('messages.44');
+                    }
+                } elseif ($request->input('count_video') == 0) {
+                    if ($this->details->count_video > 0) {
+                        $this->details->count_video = ($this->details->count_video) - 1;
+                        $this->details->save();
+                        $this->result = true;
+                        $this->message = trans('messages.10');
+                    } else {
+                        $this->details->count_video = 0;
+                    }
+                } else {
+                    $this->result = FALSE;
+                    $this->message = trans('messages.43');
+                }
+            } else {
+                $this->result = FALSE;
+                $this->message = trans('messages.7');
+            }
+        }
+        return Response::make([
+                    'result' => $this->result,
+                    'message' => $this->message,
+                    'validator_error' => $this->validator_error,
+                    'image_path' => url(trans('labels.8')),
+                    'details' => $this->details
+        ]);
+    }
+
 }
